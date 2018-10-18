@@ -31,10 +31,13 @@ public class RESTController {
     @RequestMapping(value="/files/{filename}", method= RequestMethod.GET)
     public ResponseEntity<InputStreamResource> getFileByName(@PathVariable String filename) throws IOException {
         GridFSFile file = gridFsTemplate.findOne(new Query().addCriteria(Criteria.where("filename").is(filename)));
+
+
         if(file == null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }else{
             GridFsResource resource = gridFsTemplate.getResource(file.getFilename());
+            System.out.println("result of file"+file);
             return ResponseEntity.ok()
                     .contentType(MediaType.valueOf(file.getMetadata().get("contentType").toString()))
                     .body(new InputStreamResource(resource.getInputStream()));
@@ -45,9 +48,7 @@ public class RESTController {
     @CrossOrigin("*")
     @PostMapping("/files")
     public String handleFileUpload(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) throws IOException {
-
-        //TODO implement method
-        return null;
+        return getFileByName(file.getName()).getBody().getURL().toString();
     }
 
     @CrossOrigin("*")
